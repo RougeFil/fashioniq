@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aisles - AI-Powered Local Fashion Discovery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #0a0a0a;
+            --pure-white: #ffffff;
+            --soft-white: #fafafa;
+            --gray: #666666;
+            --light-gray: #e5e5e5;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--black);
+            background: var(--pure-white);
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        .display-heading {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 300;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            padding: 1.5rem 5%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 1px solid transparent;
+        }
+
+        nav.scrolled {
+            border-bottom: 1px solid var(--light-gray);
+            padding: 1rem 5%;
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--black);
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .cta-button {
+            background: var(--accent);
+            color: var(--pure-white);
+            padding: 0.75rem 1.75rem;
+            border-radius: 100px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .cta-button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5%;
+            position: relative;
+            background: linear-gradient(135deg, #fafafa 0%, #ffffff 50%, #f8fafc 100%);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            max-width: 1400px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .hero-content {
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            margin-bottom: 1.5rem;
+            color: var(--black);
+        }
+
+        .hero h1 .accent {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-style: italic;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+            line-height: 1.8;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--pure-white);
+            padding: 1.2rem 2.5rem;
+            border-radius: 100px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-block;
+            border: 1px solid var(--accent);
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.4);
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--black);
+            padding: 1.2rem 2.5rem;
+            border: 2px solid var(--light-gray);
+            border-radius: 100px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: var(--pure-white);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Fashion Items Background */
+        .hero-visual {
+            position: relative;
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .fashion-grid {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 1.5rem;
+            padding: 2rem;
+        }
+
+        .fashion-item {
+            background: var(--pure-white);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fashion-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .fashion-item:nth-child(2n)::before {
+            background: var(--gradient-2);
+        }
+
+        .fashion-item:nth-child(3n)::before {
+            background: var(--gradient-3);
+        }
+
+        .fashion-item:hover::before {
+            opacity: 0.05;
+        }
+
+        .fashion-item:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .fashion-item.featured {
+            grid-column: span 2;
+            grid-row: span 2;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--pure-white);
+            z-index: 10;
+        }
+
+        .fashion-item.featured::before {
+            display: none;
+        }
+
+        .item-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .item-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .featured .item-name {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .item-brand {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .item-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .featured .item-price {
+            color: var(--pure-white);
+            font-size: 1.3rem;
+        }
+
+        .match-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--accent);
+            color: var(--pure-white);
+            padding: 0.3rem 0.8rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .fashion-item:nth-child(1) { animation: float 6s infinite ease-in-out; }
+        .fashion-item:nth-child(3) { animation: float 6s infinite ease-in-out 1s; }
+        .fashion-item:nth-child(4) { animation: float 6s infinite ease-in-out 2s; }
+        .fashion-item:nth-child(6) { animation: float 6s infinite ease-in-out 3s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 8rem 5%;
+            background: var(--pure-white);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--gray);
+            font-weight: 400;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+            padding: 2rem;
+            background: var(--soft-white);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--pure-white);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover .step-number {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .step h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--black);
+        }
+
+        .step p {
+            color: var(--gray);
+            line-height: 1.8;
+            font-weight: 400;
+        }
+
+        /* AI Features Section */
+        .ai-section {
+            padding: 8rem 5%;
+            background: var(--soft-white);
+        }
+
+        .ai-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .ai-content h2 {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .ai-features {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .ai-feature {
+            display: flex;
+            gap: 1.5rem;
+            padding: 2rem;
+            background: var(--pure-white);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .ai-feature:hover {
+            transform: translateX(10px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent);
+        }
+
+        .ai-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-1);
+            color: var(--pure-white);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .ai-feature:nth-child(2) .ai-icon {
+            background: var(--gradient-2);
+        }
+
+        .ai-feature:nth-child(3) .ai-icon {
+            background: var(--gradient-3);
+        }
+
+        .ai-feature-content h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .ai-feature-content p {
+            color: var(--gray);
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .ai-visual {
+            position: relative;
+            height: 500px;
+            background: var(--pure-white);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .trend-chart {
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 30px;
+            border-radius: 4px 4px 0 0;
+            animation: growUp 2s ease-out;
+        }
+
+        @keyframes growUp {
+            from { height: 0; }
+            to { height: var(--height); }
+        }
+
+        .chart-bar:nth-child(1) { left: 10%; background: var(--gradient-1); --height: 60%; }
+        .chart-bar:nth-child(2) { left: 25%; background: var(--gradient-2); --height: 80%; }
+        .chart-bar:nth-child(3) { left: 40%; background: var(--gradient-3); --height: 45%; }
+        .chart-bar:nth-child(4) { left: 55%; background: var(--gradient-1); --height: 95%; }
+        .chart-bar:nth-child(5) { left: 70%; background: var(--gradient-2); --height: 70%; }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-subtitle {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 5rem 5%;
+            background: var(--black);
+            color: var(--pure-white);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .stat {
+            padding: 2rem 1rem;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stat h3 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat:nth-child(2) h3 {
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat:nth-child(3) h3 {
+            background: var(--gradient-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat p {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+            font-size: 1.1rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 8rem 5%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            text-align: center;
+            color: var(--pure-white);
+        }
+
+        .cta-section h2 {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .cta-section p {
+            font-size: 1.25rem;
+            margin-bottom: 3rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .cta-section .btn-primary {
+            background: var(--pure-white);
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .cta-section .btn-primary:hover {
+            background: var(--soft-white);
+            transform: translateY(-3px);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--soft-white);
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 968px) {
+            .hero-grid, .ai-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .hero-visual {
+                height: 400px;
+            }
+
+            .fashion-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+            }
+
+            .fashion-item.featured {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                text-align: center;
+            }
+
+            .display-heading {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="container">
+            <div class="logo">Aisles</div>
+            <div class="nav-links">
+                <a href="#how">How It Works</a>
+                <a href="#ai">Technology</a>
+                <a href="#stats">Impact</a>
+                <a href="#" class="cta-button">Early Access</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-grid">
+            <div class="hero-content">
+                <h1 class="display-heading">Your personal <span class="accent">AI stylist</span> knows every store in town</h1>
+                <p>Machine learning meets local fashion. Get personalized style recommendations and find them in stores you can walk to. No shipping, no waiting, no returns.</p>
+                <div class="hero-buttons">
+                    <a href="fashion_questionnaire.html" target="_blank" class="btn-primary">Start My Styling</a>
+                    <a href="#how" class="btn-secondary">Watch Demo</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="fashion-grid">
+                    <div class="fashion-item">
+                        <div class="match-indicator">94%</div>
+                        <div class="item-category">Outerwear</div>
+                        <div class="item-name">Wool Blazer</div>
+                        <div class="item-brand">COS • 0.2mi</div>
+                        <div class="item-price">$$</div>
+                    </div>
+                    <div class="fashion-item featured">
+                        <div class="match-indicator">Perfect</div>
+                        <div class="item-category">Editor's Pick</div>
+                        <div class="item-name">Cashmere Sweater</div>
+                        <div class="item-brand">& Other Stories</div>
+                        <div class="item-price">$$</div>
+                    </div>
+                    <div class="fashion-item">
+                        <div class="match-indicator">91%</div>
+                        <div class="item-category">Denim</div>
+                        <div class="item-name">Wide Leg Jeans</div>
+                        <div class="item-brand">Arket • 0.4mi</div>
+                        <div class="item-price">$</div>
+                    </div>
+                    <div class="fashion-item">
+                        <div class="match-indicator">88%</div>
+                        <div class="item-category">Accessories</div>
+                        <div class="item-name">Leather Bag</div>
+                        <div class="item-brand">Sézane • 0.3mi</div>
+                        <div class="item-price">$$$</div>
+                    </div>
+                    <div class="fashion-item">
+                        <div class="match-indicator">96%</div>
+                        <div class="item-category">Footwear</div>
+                        <div class="item-name">White Sneakers</div>
+                        <div class="item-brand">Veja • 0.1mi</div>
+                        <div class="item-price">$$</div>
+                    </div>
+                    <div class="fashion-item">
+                        <div class="match-indicator">89%</div>
+                        <div class="item-category">Knitwear</div>
+                        <div class="item-name">Ribbed Top</div>
+                        <div class="item-brand">Ganni • 0.5mi</div>
+                        <div class="item-price">$$</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how">
+        <div class="section-header">
+            <h2 class="section-title">Three steps to perfect style</h2>
+            <p class="section-subtitle">Our AI learns your preferences in under 60 seconds</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Quick Style Profile</h3>
+                <p>Visual quiz learns your aesthetic, body type, and lifestyle. No lengthy forms—just swipe on looks you love.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>AI Curation</h3>
+                <p>Our ML model analyzes millions of items to find pieces that match your unique style DNA with precision.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Local Discovery</h3>
+                <p>See exact items in nearby stores. Real-time inventory, directions, and store hours at your fingertips.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Features Section -->
+    <section class="ai-section" id="ai">
+        <div class="ai-grid">
+            <div class="ai-content">
+                <h2>Powered by advanced ML</h2>
+                <div class="ai-features">
+                    <div class="ai-feature">
+                        <div class="ai-icon">🧠</div>
+                        <div class="ai-feature-content">
+                            <h4>Style DNA Mapping</h4>
+                            <p>Neural networks analyze your preferences to create a unique style fingerprint that evolves with you.</p>
+                        </div>
+                    </div>
+                    <div class="ai-feature">
+                        <div class="ai-icon">🎯</div>
+                        <div class="ai-feature-content">
+                            <h4>Predictive Matching</h4>
+                            <p>Collaborative filtering suggests items loved by people with similar taste profiles.</p>
+                        </div>
+                    </div>
+                    <div class="ai-feature">
+                        <div class="ai-icon">📊</div>
+                        <div class="ai-feature-content">
+                            <h4>Real-time Inventory Sync</h4>
+                            <p>API integration with local retailers ensures you only see what's actually available.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-visual">
+                <div class="trend-chart">
+                    <div class="chart-bar"></div>
+                    <div class="chart-bar"></div>
+                    <div class="chart-bar"></div>
+                    <div class="chart-bar"></div>
+                    <div class="chart-bar"></div>
+                </div>
+                <div class="chart-title">Style Trend Analysis</div>
+                <div class="chart-subtitle">Real-time fashion data from 1,200+ local stores</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats" id="stats">
+        <div class="stats-grid">
+            <div class="stat">
+                <h3>1,200</h3>
+                <p>Partner stores</p>
+            </div>
+            <div class="stat">
+                <h3>92%</h3>
+                <p>Match accuracy</p>
+            </div>
+            <div class="stat">
+                <h3><1 sec </h3>
+                <p>Recommendation time</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Be first to experience the future of fashion discovery</h2>
+        <p>Join the waitlist for early access when we launch in your city</p>
+        <a href="#" class="btn-primary">Request Early Access</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="logo">Aisles</div>
+            <div class="footer-links">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Retailers</a>
+                <a href="#">API</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animations
+        document.querySelectorAll('.step, .ai-feature, .stat, .fashion-item').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Dynamic match scores with more realistic behavior
+        const matchScores = document.querySelectorAll('.match-indicator');
+        matchScores.forEach((score, index) => {
+            const originalText = score.textContent;
+            
+            score.addEventListener('mouseenter', function() {
+                const messages = ['AI matched', 'Perfect fit', 'Style sync', 'Your vibe'];
+                this.textContent = messages[index % messages.length];
+            });
+            
+            score.addEventListener('mouseleave', function() {
+                this.textContent = originalText;
+            });
+
+            // Add subtle animation loop
+            setTimeout(() => {
+                score.style.animation = `pulse 3s infinite ${index * 0.5}s`;
+            }, 1000);
+        });
+
+        // Fashion item hover effects
+        const fashionItems = document.querySelectorAll('.fashion-item');
+        fashionItems.forEach((item, index) => {
+            item.addEventListener('mouseenter', function() {
+                // Slight scale and glow effect for nearby items
+                fashionItems.forEach((otherItem, otherIndex) => {
+                    if (Math.abs(index - otherIndex) === 1) {
+                        otherItem.style.transform = 'scale(1.02)';
+                        otherItem.style.boxShadow = '0 15px 40px rgba(99, 102, 241, 0.1)';
+                    }
+                });
+            });
+
+            item.addEventListener('mouseleave', function() {
+                fashionItems.forEach(otherItem => {
+                    otherItem.style.transform = '';
+                    otherItem.style.boxShadow = '';
+                });
+            });
+        });
+
+        // Animated counters for stats
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = Math.floor(progress * (end - start) + start);
+                
+                if (element.textContent.includes('K')) {
+                    element.textContent = current + 'K+';
+                } else if (element.textContent.includes('%')) {
+                    element.textContent = current + '%';
+                } else if (element.textContent.includes('sec')) {
+                    element.textContent = '< 1 sec';
+                } else {
+                    element.textContent = current.toLocaleString();
+                }
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Trigger counter animation when stats section is visible
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statNumbers = entry.target.querySelectorAll('.stat h3');
+                    statNumbers.forEach((stat, index) => {
+                        const values = [500, 1200, 95, 1];
+                        animateValue(stat, 0, values[index], 2000);
+                    });
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        const statsSection = document.querySelector('.stats');
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+
+        // Chart animation
+        const chartBars = document.querySelectorAll('.chart-bar');
+        const chartObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    chartBars.forEach((bar, index) => {
+                        setTimeout(() => {
+                            bar.style.animation = `growUp 1.5s ease-out ${index * 0.2}s forwards`;
+                        }, 500);
+                    });
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        const chartSection = document.querySelector('.ai-visual');
+        if (chartSection) {
+            chartObserver.observe(chartSection);
+        }
+    </script>
+</body>
+</html>
+                <p>Items indexed locally</p>
+            </div>
+            <div class="stat">
+                <h3

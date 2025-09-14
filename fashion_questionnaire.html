@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FashionIQ - Style Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #0a0a0a;
+            --pure-white: #ffffff;
+            --soft-white: #fafafa;
+            --gray: #666666;
+            --light-gray: #e5e5e5;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--black);
+            background: var(--soft-white);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--pure-white);
+            padding: 1.5rem 5%;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-container {
+            flex: 1;
+            max-width: 300px;
+            margin: 0 2rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--light-gray);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Question Card */
+        .question-card {
+            background: var(--pure-white);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-number {
+            font-size: 0.875rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .question-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .question-subtitle {
+            font-size: 1.125rem;
+            color: var(--gray);
+            margin-bottom: 3rem;
+            font-weight: 400;
+        }
+
+        /* Visual Options Grid */
+        .visual-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .visual-option {
+            background: var(--soft-white);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visual-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .visual-option:hover::before {
+            opacity: 0.05;
+        }
+
+        .visual-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.15);
+            border-color: var(--accent);
+        }
+
+        .visual-option.selected {
+            background: var(--accent);
+            color: var(--pure-white);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.3);
+        }
+
+        .visual-option.selected::before {
+            display: none;
+        }
+
+        .option-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .option-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .option-description {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        /* Text Options */
+        .text-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .text-option {
+            padding: 1.25rem 2rem;
+            background: var(--soft-white);
+            border-radius: 100px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .text-option:hover {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .text-option.selected {
+            background: var(--accent);
+            color: var(--pure-white);
+            border-color: var(--accent);
+        }
+
+        /* Style Showcase */
+        .style-showcase {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .style-card {
+            background: var(--pure-white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            text-align: left;
+        }
+
+        .style-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent);
+        }
+
+        .style-card.selected {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .style-preview {
+            width: 100%;
+            height: 200px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--pure-white);
+        }
+
+        .style-card:nth-child(2) .style-preview {
+            background: var(--gradient-2);
+        }
+
+        .style-card:nth-child(3) .style-preview {
+            background: var(--gradient-3);
+        }
+
+        .style-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+        }
+
+        .style-description {
+            font-size: 0.875rem;
+            color: var(--gray);
+            line-height: 1.4;
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--gray);
+            border: 2px solid var(--light-gray);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--pure-white);
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 35px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Results Section */
+        .results-section {
+            background: var(--pure-white);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .results-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .style-match {
+            background: var(--gradient-1);
+            color: var(--pure-white);
+            padding: 2rem;
+            border-radius: 20px;
+            margin: 2rem 0;
+        }
+
+        .match-percentage {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .match-style {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .match-description {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .recommendations {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .recommendation-item {
+            background: var(--soft-white);
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .rec-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            color: var(--pure-white);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .rec-content h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .rec-content p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .question-card {
+                padding: 2rem;
+            }
+
+            .question-title {
+                font-size: 2rem;
+            }
+
+            .visual-options {
+                grid-template-columns: 1fr;
+            }
+
+            .style-showcase {
+                grid-template-columns: 1fr;
+            }
+
+            .text-options {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">FashionIQ</div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Question 1 of 8</div>
+            </div>
+            <div style="width: 120px;"></div> <!-- Spacer for centering -->
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="question-card" id="questionCard">
+            <!-- Questions will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Fashion Style Database (Mini ML Model)
+        const styleDatabase = {
+            minimalist: {
+                name: "Minimalist Chic",
+                description: "Clean lines, neutral colors, quality over quantity",
+                traits: ["clean", "professional", "neutral", "simple", "quality"],
+                avoid: ["bold", "patterns", "bright", "bohemian"]
+            },
+            bohemian: {
+                name: "Bohemian Spirit",
+                description: "Free-spirited, artistic, layered textures and patterns",
+                traits: ["artistic", "patterns", "flowing", "vintage", "colorful"],
+                avoid: ["minimalist", "corporate", "structured"]
+            },
+            classic: {
+                name: "Timeless Classic",
+                description: "Traditional elegance, tailored fits, investment pieces",
+                traits: ["professional", "structured", "quality", "neutral", "timeless"],
+                avoid: ["trendy", "bohemian", "edgy"]
+            },
+            edgy: {
+                name: "Urban Edge",
+                description: "Bold choices, leather, dark colors, statement pieces",
+                traits: ["bold", "dark", "leather", "statement", "modern"],
+                avoid: ["sweet", "feminine", "pastel", "classic"]
+            },
+            romantic: {
+                name: "Romantic Feminine",
+                description: "Soft fabrics, floral patterns, delicate details",
+                traits: ["feminine", "soft", "florals", "pastels", "delicate"],
+                avoid: ["edgy", "dark", "harsh", "minimalist"]
+            },
+            casual: {
+                name: "Effortless Casual",
+                description: "Comfortable, versatile, easy-going everyday style",
+                traits: ["comfortable", "versatile", "simple", "relaxed"],
+                avoid: ["formal", "structured", "complicated"]
+            }
+        };
+
+        // Questions Database with Akinator-style logic
+        const questions = [
+            {
+                id: 1,
+                type: "visual",
+                question: "Which vibe speaks to you most?",
+                subtitle: "Choose the aesthetic that draws you in",
+                options: [
+                    {
+                        id: "clean",
+                        icon: "🤍",
+                        title: "Clean & Minimal",
+                        description: "Less is more, quality over quantity",
+                        traits: ["minimalist", "clean", "simple"]
+                    },
+                    {
+                        id: "artistic",
+                        icon: "🎨",
+                        title: "Artistic & Bohemian", 
+                        description: "Creative expression through fashion",
+                        traits: ["bohemian", "artistic", "creative"]
+                    },
+                    {
+                        id: "professional",
+                        icon: "💼",
+                        title: "Polished & Professional",
+                        description: "Timeless elegance for any occasion",
+                        traits: ["classic", "professional", "structured"]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                type: "text",
+                question: "How would friends describe your style?",
+                subtitle: "Pick the words that resonate most",
+                options: [
+                    { id: "sophisticated", text: "Sophisticated", traits: ["classic", "professional"] },
+                    { id: "creative", text: "Creative", traits: ["bohemian", "artistic"] },
+                    { id: "effortless", text: "Effortless", traits: ["casual", "simple"] },
+                    { id: "bold", text: "Bold", traits: ["edgy", "statement"] },
+                    { id: "romantic", text: "Romantic", traits: ["romantic", "feminine"] },
+                    { id: "modern", text: "Modern", traits: ["minimalist", "contemporary"] }
+                ],
+                multiple: true
+            },
+            {
+                id: 3,
+                type: "visual", 
+                question: "Your ideal weekend outfit includes...",
+                subtitle: "Comfort meets style",
+                options: [
+                    {
+                        id: "structured",
+                        icon: "👔",
+                        title: "Structured Pieces",
+                        description: "Blazers, tailored pants, crisp shirts",
+                        traits: ["classic", "professional", "structured"]
+                    },
+                    {
+                        id: "flowing",
+                        icon: "👗",
+                        title: "Flowing Fabrics",
+                        description: "Maxi dresses, loose tops, comfortable fits",
+                        traits: ["bohemian", "flowing", "comfortable"]
+                    },
+                    {
+                        id: "casual",
+                        icon: "👕",
+                        title: "Easy Basics",
+                        description: "Well-fitted jeans, soft tees, minimal fuss",
+                        traits: ["casual", "simple", "comfortable"]
+                    }
+                ]
+            },
+            {
+                id: 4,
+                type: "text",
+                question: "Which colors make you feel most confident?",
+                subtitle: "Your power palette",
+                options: [
+                    { id: "neutrals", text: "Neutral Tones", traits: ["minimalist", "classic"] },
+                    { id: "earth", text: "Earth Tones", traits: ["bohemian", "natural"] },
+                    { id: "monochrome", text: "Black & White", traits: ["edgy", "minimalist"] },
+                    { id: "pastels", text: "Soft Pastels", traits: ["romantic", "feminine"] },
+                    { id: "jewel", text: "Jewel Tones", traits: ["bold", "statement"] },
+                    { id: "bright", text: "Bright Colors", traits: ["bohemian", "bold"] }
+                ]
+            },
+            {
+                id: 5,
+                type: "visual",
+                question: "Your shopping priority is...", 
+                subtitle: "What matters most when building your wardrobe?",
+                options: [
+                    {
+                        id: "quality",
+                        icon: "💎",
+                        title: "Investment Quality",
+                        description: "Fewer, better pieces that last years",
+                        traits: ["minimalist", "classic", "quality"]
+                    },
+                    {
+                        id: "variety",
+                        icon: "🌈", 
+                        title: "Style Variety",
+                        description: "Different looks for different moods",
+                        traits: ["bohemian", "versatile", "creative"]
+                    },
+                    {
+                        id: "trends",
+                        icon: "⚡",
+                        title: "On-Trend Pieces", 
+                        description: "Current styles that make a statement",
+                        traits: ["trendy", "modern", "statement"]
+                    }
+                ]
+            },
+            {
+                id: 6,
+                type: "text",
+                question: "Your lifestyle is mostly...",
+                subtitle: "This helps us match clothes to your real life",
+                options: [
+                    { id: "professional", text: "Work-focused", traits: ["professional", "classic"] },
+                    { id: "social", text: "Social & Active", traits: ["versatile", "casual"] },
+                    { id: "creative", text: "Creative Work", traits: ["artistic", "bohemian"] },
+                    { id: "balanced", text: "Work-Life Balance", traits: ["versatile", "adaptable"] }
+                ]
+            },
+            {
+                id: 7,
+                type: "visual",
+                question: "Pattern preference?",
+                subtitle: "How do you feel about prints and patterns?",
+                options: [
+                    {
+                        id: "none",
+                        icon: "⚪",
+                        title: "Solid Colors Only",
+                        description: "Clean, uninterrupted color blocks",
+                        traits: ["minimalist", "clean", "simple"]
+                    },
+                    {
+                        id: "subtle", 
+                        icon: "〰️",
+                        title: "Subtle Patterns",
+                        description: "Small prints, textures, gentle details",
+                        traits: ["classic", "subtle", "refined"]
+                    },
+                    {
+                        id: "bold",
+                        icon: "🔥",
+                        title: "Bold Patterns", 
+                        description: "Statement prints, mixing patterns fearlessly",
+                        traits: ["bohemian", "bold", "artistic"]
+                    }
+                ]
+            },
+            {
+                id: 8,
+                type: "text",
+                question: "Your style inspiration comes from...",
+                subtitle: "Final question - what influences your fashion choices?",
+                options: [
+                    { id: "magazines", text: "Fashion Magazines", traits: ["trendy", "polished"] },
+                    { id: "street", text: "Street Style", traits: ["edgy", "urban"] },
+                    { id: "vintage", text: "Vintage Icons", traits: ["classic", "timeless"] },
+                    { id: "artists", text: "Artists & Creatives", traits: ["bohemian", "artistic"] },
+                    { id: "minimal", text: "Scandinavian Style", traits: ["minimalist", "clean"] },
+                    { id: "instagram", text: "Social Media", traits: ["trendy", "modern"] }
+                ]
+            }
+        ];
+
+        // User state
+        let currentQuestion = 0;
+        let userAnswers = {};
+        let userTraits = {};
+
+        // Initialize
+        function init() {
+            showQuestion(currentQuestion);
+            updateProgress();
+        }
+
+        // Show current question
+        function showQuestion(questionIndex) {
+            const question = questions[questionIndex];
+            const card = document.getElementById('questionCard');
+            
+            let optionsHTML = '';
+            
+            if (question.type === 'visual') {
+                optionsHTML = `
+                    <div class="visual-options">
+                        ${question.options.map(option => `
+                            <div class="visual-option" data-id="${option.id}" onclick="selectVisualOption('${option.id}', ${JSON.stringify(option.traits).replace(/"/g, '&quot;')})">
+                                <span class="option-icon">${option.icon}</span>
+                                <h3 class="option-title">${option.title}</h3>
+                                <p class="option-description">${option.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (question.type === 'text') {
+                optionsHTML = `
+                    <div class="text-options">
+                        ${question.options.map(option => `
+                            <div class="text-option" data-id="${option.id}" onclick="selectTextOption('${option.id}', ${JSON.stringify(option.traits).replace(/"/g, '&quot;')}, ${question.multiple || false})">
+                                ${option.text}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="question-number">Question ${questionIndex + 1} of ${questions.length}</div>
+                <h2 class="question-title">${question.question}</h2>
+                <p class="question-subtitle">${question.subtitle}</p>
+                ${optionsHTML}
+                <div class="navigation">
+                    <button class="btn btn-secondary" onclick="previousQuestion()" ${questionIndex === 0 ? 'style="visibility: hidden"' : ''}>
+                        Previous
+                    </button>
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>
+                        ${questionIndex === questions.length - 1 ? 'See My Results' : 'Next Question'}
+                    </button>
+                </div>
+            `;
+        }
+
+        // Selection handlers
+        function selectVisualOption(optionId, traits) {
+            // Clear previous selections
+            document.querySelectorAll('.visual-option').forEach(el => el.classList.remove('selected'));
+            // Select current option
+            event.target.closest('.visual-option').classList.add('selected');
+            
+            // Store answer
+            userAnswers[currentQuestion] = optionId;
+            addTraits(traits);
+            
+            // Enable next button
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function selectTextOption(optionId, traits, multiple) {
+            const option = event.target;
+            
+            if (!multiple) {
+                // Single selection
+                document.querySelectorAll('.text-option').forEach(el => el.classList.remove('selected'));
+                option.classList.add('selected');
+                userAnswers[currentQuestion] = optionId;
+            } else {
+                // Multiple selection
+                option.classList.toggle('selected');
+                if (!userAnswers[currentQuestion]) userAnswers[currentQuestion] = [];
+                
+                if (option.classList.contains('selected')) {
+                    if (!userAnswers[currentQuestion].includes(optionId)) {
+                        userAnswers[currentQuestion].push(optionId);
+                    }
+                } else {
+                    userAnswers[currentQuestion] = userAnswers[currentQuestion].filter(id => id !== optionId);
+                }
+            }
+            
+            addTraits(traits);
+            
+            // Enable next button if any selection made
+            const hasSelection = multiple ? 
+                userAnswers[currentQuestion] && userAnswers[currentQuestion].length > 0 :
+                userAnswers[currentQuestion];
+            document.getElementById('nextBtn').disabled = !hasSelection;
+        }
+
+        // Add traits to user profile
+        function addTraits(traits) {
+            traits.forEach(trait => {
+                userTraits[trait] = (userTraits[trait] || 0) + 1;
+            });
+        }
+
+        // Navigation
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+                updateProgress();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+                updateProgress();
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+        }
+
+        // Calculate and show results (Mini ML Algorithm)
+        function showResults() {
+            // Find dominant style based on traits
+            let styleScores = {};
+            
+            // Calculate scores for each style
+            Object.keys(styleDatabase).forEach(styleKey => {
+                const style = styleDatabase[styleKey];
+                let score = 0;
+                
+                // Add points for matching traits
+                style.traits.forEach(trait => {
+                    if (userTraits[trait]) {
+                        score += userTraits[trait] * 10;
+                    }
+                });
+                
+                // Subtract points for avoided traits
+                style.avoid.forEach(trait => {
+                    if (userTraits[trait]) {
+                        score -= userTraits[trait] * 5;
+                    }
+                });
+                
+                styleScores[styleKey] = Math.max(0, score);
+            });
+            
+            // Find top style
+            const topStyle = Object.keys(styleScores).reduce((a, b) => 
+                styleScores[a] > styleScores[b] ? a : b
+            );
+            
+            const matchedStyle = styleDatabase[topStyle];
+            const maxScore = Math.max(...Object.values(styleScores));
+            const matchPercentage = Math.min(95, Math.max(75, Math.round(maxScore / 2)));
+            
+            // Show results
+            const card = document.getElementById('questionCard');
+            
+            card.innerHTML = `
+                <div class="results-section">
+                    <h2 class="results-title">Your Style Profile</h2>
+                    
+                    <div class="style-match">
+                        <div class="match-percentage">${matchPercentage}%</div>
+                        <div class="match-style">${matchedStyle.name}</div>
+                        <p class="match-description">${matchedStyle.description}</p>
+                    </div>
+                    
+                    <div class="recommendations">
+                        <div class="recommendation-item">
+                            <div class="rec-icon">🎯</div>
+                            <div class="rec-content">
+                                <h4>Perfect Matches Nearby</h4>
+                                <p>We found 47 items in local stores that match your ${matchedStyle.name.toLowerCase()} style</p>
+                            </div>
+                        </div>
+                        <div class="recommendation-item">
+                            <div class="rec-icon">📍</div>
+                            <div class="rec-content">
+                                <h4>Your Style Neighborhood</h4>
+                                <p>Best stores for you: COS (0.2mi), Arket (0.4mi), & Other Stories (0.3mi)</p>
+                            </div>
+                        </div>
+                        <div class="recommendation-item">
+                            <div class="rec-icon">💡</div>
+                            <div class="rec-content">
+                                <h4>Style Tips</h4>
+                                <p>Focus on ${matchedStyle.traits.slice(0,3).join(', ')} pieces to enhance your natural style</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="navigation" style="justify-content: center; margin-top: 2rem;">
+                        <a href="#" class="btn btn-primary" onclick="showLocalFinds()">Find My Style Locally</a>
+                    </div>
+                </div>
+            `;
+            
+            // Update progress to 100%
+            document.getElementById('progressFill').style.width = '100%';
+            document.getElementById('progressText').textContent = 'Analysis Complete!';
+        }
+
+        // Show local fashion finds (would integrate with real inventory)
+        function showLocalFinds() {
+            // In a real app, this would redirect to results page with API calls
+            alert(`Great! Now we'd show you local stores with ${styleDatabase[Object.keys(styleScores).reduce((a, b) => styleScores[a] > styleScores[b] ? a : b)].name} pieces near you. This would connect to store APIs and show real inventory!`);
+        }
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
